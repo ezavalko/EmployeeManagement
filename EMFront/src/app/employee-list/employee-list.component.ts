@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { EmployeeService } from '../employee.service';
+import { SharedManagerService } from '../shared-manager.service';
 
 @Component({
   selector: 'app-employee-list',
@@ -12,12 +13,21 @@ export class EmployeeListComponent implements OnInit {
   managers: any[] = [];
   selectedManager: string = '';
 
-  constructor(private employeeService: EmployeeService) {}
+  constructor(private employeeService: EmployeeService, private sharedManagerService: SharedManagerService) {}
 
   ngOnInit(): void {
+    this.sharedManagerService.selectedManager$.subscribe((managerId) => {
+      this.selectedManager = managerId;
+      this.loadEmployees();
+    });
+
     this.loadManagers();
-    this.loadEmployees();
   }
+
+  // ngOnInit(): void {
+  //   this.loadManagers();
+  //   this.loadEmployees();
+  // }
 
   loadManagers() {
     this.employeeService.getManagers()?.subscribe({
@@ -53,6 +63,7 @@ export class EmployeeListComponent implements OnInit {
   }
 
   onManagerChange() {
+    this.sharedManagerService.setSelectedManager(this.selectedManager);
     this.loadEmployees();
   }
 }
