@@ -35,6 +35,18 @@ export class EmployeeFormComponent implements OnInit {
 
     this.managerId = this.route.snapshot.paramMap.get('managerId');
 
+
+    this.employeeService.getManagers().subscribe((managers) => {
+      if (managers) {
+        this.managers = managers;
+        this.hasManagers = managers.length > 0;
+
+        if (!id && !this.managerId && this.managers.length > 0) {
+          this.managerId = this.managers[0].id;
+        }
+      }
+    });
+
     if (id) {
       this.employeeService.getEmployee(id).subscribe((data) => {
         if (data) {
@@ -49,23 +61,13 @@ export class EmployeeFormComponent implements OnInit {
         this.roles = data;
       }
     });
-
-    this.employeeService.getManagers().subscribe((managers) => {
-      if (managers) {
-        this.managers = managers;
-        this.hasManagers = managers.length > 0;
-
-        // Check if managerId is not set in the route, and select the first manager
-        if (!this.managerId && this.managers.length > 0) {
-          this.managerId = this.managers[0].id;
-        }
-      }
-    });
   }
 
   onSubmit() {
     const id = this.route.snapshot.paramMap.get('id');
     this.apiErrors = [];
+    this.employee.managerId = this.managerId;
+
     if (id) {
       this.employeeService.updateEmployee(id, this.employee).subscribe({
         next: () => {
